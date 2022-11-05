@@ -4,6 +4,11 @@ import lombok.*;
 
 import javax.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static javax.persistence.CascadeType.PERSIST;
+import static javax.persistence.CascadeType.REMOVE;
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity(name = "Student")
@@ -13,7 +18,6 @@ import static javax.persistence.GenerationType.SEQUENCE;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
 public class Student {
     @Id
     @SequenceGenerator(
@@ -35,11 +39,41 @@ public class Student {
     private String email;
     @Column(name = "age", nullable = false)
     private Integer age;
+    @OneToOne(mappedBy = "student", fetch = FetchType.EAGER, orphanRemoval = true, cascade = {PERSIST, REMOVE})
+    private StudentIdCard studentIdCard;
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "student", orphanRemoval = true, cascade = {PERSIST, REMOVE})
+    private List<Book> books = new ArrayList<>();
+
+    public void addBook(Book book) {
+        if (!this.books.contains(book)) {
+            this.books.add(book);
+            book.setStudent(this);
+        }
+    }
+
+    public void removeBook(Book book) {
+        if (this.books.contains(book)) {
+            this.books.remove(book);
+            book.setStudent(null);
+        }
+    }
 
     public Student(String firstName, String LastName, String email, Integer age) {
         this.firstName = firstName;
         this.LastName = LastName;
         this.email = email;
         this.age = age;
+    }
+
+    @Override
+    public String toString() {
+        return "Student{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", LastName='" + LastName + '\'' +
+                ", email='" + email + '\'' +
+                ", age=" + age +
+                ", studentIdCard=" + studentIdCard +
+                '}';
     }
 }

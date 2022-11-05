@@ -8,6 +8,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @SpringBootApplication
 public class SpringDataJpaApplication {
@@ -17,15 +21,26 @@ public class SpringDataJpaApplication {
     }
 
     @Bean
-    CommandLineRunner commandLineRunner(StudentRepository studentRepository) {
+    CommandLineRunner commandLineRunner(StudentRepository studentRepository, StudentIdCardRepository studentIdCardRepository) {
         return args -> {
+            Faker faker = new Faker();
+            String firstName = faker.name().firstName();
+            String lastName = faker.name().lastName();
+            String email = String.format("%s.%s@amigoscode.edu", firstName, lastName);
+            Student student = new Student(firstName, lastName, email, faker.number().numberBetween(17, 45));
+            student.addBook(new Book(LocalDateTime.now().minusDays(4), "Clean Code"));
+            student.addBook(new Book(LocalDateTime.now(), "Think and Grow Rich"));
+            student.addBook(new Book(LocalDateTime.now().minusYears(1), "Spring Data JPA"));
+            StudentIdCard studentIdCard = new StudentIdCard("1234567890", student);
 
-            generateRandomStudents(studentRepository);
-
-            PageRequest pageRequest = PageRequest.of(0, 5, Sort.by("firstName").ascending());
-            Page<Student> page = studentRepository.findAll(pageRequest);
-            System.out.println(page);
-
+            student.setStudentIdCard(studentIdCard);
+            studentRepository.save(student);
+//            studentIdCardRepository.findById(1L).ifPresent(System.out::println);
+            studentRepository.findById(1L).ifPresent(student1 -> {
+                System.out.println("Fetch book lazy...");
+                List<Book> books = student1.getBooks();
+                books.forEach(book -> System.out.println(student1.getFirstName() + " borrowed " + book.getBookName()));
+            });
         };
     }
 
