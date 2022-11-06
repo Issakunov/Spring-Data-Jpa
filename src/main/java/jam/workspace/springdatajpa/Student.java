@@ -43,6 +43,11 @@ public class Student {
     private StudentIdCard studentIdCard;
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "student", orphanRemoval = true, cascade = {PERSIST, REMOVE})
     private List<Book> books = new ArrayList<>();
+    @OneToMany(
+            cascade = {PERSIST, REMOVE},
+            mappedBy = "student"
+    )
+    private List<Enrolment> enrolments = new ArrayList<>();
 
     public void addBook(Book book) {
         if (!this.books.contains(book)) {
@@ -56,6 +61,16 @@ public class Student {
             this.books.remove(book);
             book.setStudent(null);
         }
+    }
+    public void addEnrolment(Enrolment enrolment) {
+        if (!this.enrolments.contains(enrolment)) {
+            this.enrolments.add(enrolment);
+            enrolment.setStudent(this);
+        }
+    }
+    public void removeEnrolment(Enrolment enrolment) {
+        this.enrolments.remove(enrolment);
+        enrolment.setStudent(null);
     }
 
     public Student(String firstName, String LastName, String email, Integer age) {

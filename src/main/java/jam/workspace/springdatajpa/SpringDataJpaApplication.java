@@ -32,15 +32,18 @@ public class SpringDataJpaApplication {
             student.addBook(new Book(LocalDateTime.now(), "Think and Grow Rich"));
             student.addBook(new Book(LocalDateTime.now().minusYears(1), "Spring Data JPA"));
             StudentIdCard studentIdCard = new StudentIdCard("1234567890", student);
-
             student.setStudentIdCard(studentIdCard);
+//            student.addCourse(new Course("Computer Science", "IT"));
+//            student.addCourse(new Course("Amigoscode Spting Data JPA", "IT"));
+            student.addEnrolment(new Enrolment(new EnrolmentId(1L, 1L), student, new Course("Amigoscode Spting Data JPA", "IT"), LocalDateTime.now()));
+            student.addEnrolment(new Enrolment(new EnrolmentId(2L, 2L), student, new Course("Computer Science", "IT"), LocalDateTime.now().minusDays(18)));
             studentRepository.save(student);
 //            studentIdCardRepository.findById(1L).ifPresent(System.out::println);
-            studentRepository.findById(1L).ifPresent(student1 -> {
-                System.out.println("Fetch book lazy...");
-                List<Book> books = student1.getBooks();
-                books.forEach(book -> System.out.println(student1.getFirstName() + " borrowed " + book.getBookName()));
-            });
+//            studentRepository.findById(1L).ifPresent(student1 -> {
+//                System.out.println("Fetch book lazy...");
+//                List<Book> books = student1.getBooks();
+//                books.forEach(book -> System.out.println(student1.getFirstName() + " borrowed " + book.getBookName()));
+//            });
         };
     }
 
